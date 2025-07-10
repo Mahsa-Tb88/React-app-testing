@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import UserList from "../../src/components/UserList";
 import { User } from "../../src/entities";
-import { link } from "fs";
 
 describe("UserList", () => {
   it("should return no users when user list is empty", () => {
