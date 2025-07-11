@@ -3,19 +3,22 @@ import TermsAndConditions from "../../src/components/TermsAndConditions";
 import userEvent from "@testing-library/user-event";
 
 describe("TermsAndConditions", () => {
-  it("should return text and  unchecked and inactive btn", () => {
+  const renderComponent = () => {
     render(<TermsAndConditions />);
+    return {
+      button: screen.getByRole("button"),
+      heading: screen.getByRole("heading"),
+      checkbox: screen.getByRole("checkbox"),
+    };
+  };
 
-    const heading = screen.getByRole("heading");
-    expect(heading).toBeInTheDocument();
+  it("should return text and  unchecked and inactive btn", () => {
+    const { button, heading, checkbox } = renderComponent();
+
     expect(heading).toHaveTextContent(/Terms & Conditions/i);
 
-    const checkbox = screen.getByRole("checkbox");
-    expect(checkbox).toBeInTheDocument();
     expect(checkbox).not.toBeChecked();
 
-    const button = screen.getByRole("button");
-    expect(button).toBeInTheDocument();
     expect(button).toHaveTextContent(/submit/i);
     expect(button).toBeDisabled();
   });
