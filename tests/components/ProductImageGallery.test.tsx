@@ -1,23 +1,48 @@
 import { render, screen } from "@testing-library/react";
 import ProductImageGallery from "../../src/components/ProductImageGallery";
 
-describe("ProductImageGallery", () => {
-  it("should return nothing if array of imgage is empty", () => {
+describe("ProductImageGalllery", () => {
+  it("should return nothing when image list is empty", () => {
     const { container } = render(<ProductImageGallery imageUrls={[]} />);
     expect(container).toBeEmptyDOMElement();
   });
-  it("should return images if array of imgage is not empty", () => {
 
-    const imageUrls: Array<string> = ["photo1", "photo2"];
-
+  it("should return image list when image list is provided", () => {
+    const imageUrls = ["usrl1", "userl2"];
     render(<ProductImageGallery imageUrls={imageUrls} />);
-
     const images = screen.getAllByRole("img");
-
     expect(images).toHaveLength(2);
     
-    imageUrls.forEach((url, index) => {
-      expect(images[index]).toHaveAttribute("src", url);
+    // imageUrls.forEach((url, index) =>
+    //   expect(images[index]).toHaveAttribute("src", url)
+    // );
+
+    images.forEach((img, index) => {
+      expect(img).toHaveAttribute("src", imageUrls[index]);
     });
   });
 });
+
+// import { render, screen } from "@testing-library/react";
+// import ProductImageGallery from "../../src/components/ProductImageGallery";
+
+// describe("ProductImageGallery", () => {
+//   it("should return nothing if array of imgage is empty", () => {
+//     const { container } = render(<ProductImageGallery imageUrls={[]} />);
+//     expect(container).toBeEmptyDOMElement();
+//   });
+//   it("should return images if array of imgage is not empty", () => {
+
+//     const imageUrls: Array<string> = ["photo1", "photo2"];
+
+//     render(<ProductImageGallery imageUrls={imageUrls} />);
+
+//     const images = screen.getAllByRole("img");
+
+//     expect(images).toHaveLength(2);
+
+//     imageUrls.forEach((url, index) => {
+//       expect(images[index]).toHaveAttribute("src", url);
+//     });
+//   });
+// });
