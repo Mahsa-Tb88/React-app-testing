@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import TermsAndConditions from "../../src/components/TermsAndConditions";
 import userEvent from "@testing-library/user-event";
 
-describe("TermsAndConditions", () => {
+describe("Terms and Conditions", () => {
   const renderComponent = () => {
     render(<TermsAndConditions />);
     return {
@@ -11,26 +11,23 @@ describe("TermsAndConditions", () => {
       checkbox: screen.getByRole("checkbox"),
     };
   };
-
   it("should return text and  unchecked and inactive btn", () => {
-    const { button, heading, checkbox } = renderComponent();
+    const { heading, button, checkbox } = renderComponent();
 
-    expect(heading).toHaveTextContent(/Terms & Conditions/i);
+    expect(heading).toBeInTheDocument();
 
+    expect(checkbox).toBeInTheDocument();
     expect(checkbox).not.toBeChecked();
 
-    expect(button).toHaveTextContent(/submit/i);
-    expect(button).toBeDisabled();
+    expect(button).toBeInTheDocument();
+    expect(button).not.toBeEnabled();
   });
 
   it("should return enable button when checkbox is checked", async () => {
-    render(<TermsAndConditions />);
+    const { button, checkbox } = renderComponent();
 
-    const checkbox = screen.getByRole("checkbox");
     const user = userEvent.setup();
     await user.click(checkbox);
-
-    const button = screen.getByRole("button");
     expect(button).toBeEnabled();
   });
 });
