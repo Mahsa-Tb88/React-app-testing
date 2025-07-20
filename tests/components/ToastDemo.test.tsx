@@ -4,7 +4,7 @@ import { Toaster } from "react-hot-toast";
 import userEvent from "@testing-library/user-event";
 
 describe("ToastDemo", () => {
-  it("should return toust success", async () => {
+  it("should retun toast success", async () => {
     render(
       <>
         <ToastDemo />
@@ -20,3 +20,4 @@ describe("ToastDemo", () => {
     expect(toast).toBeInTheDocument();
   });
 });
+
