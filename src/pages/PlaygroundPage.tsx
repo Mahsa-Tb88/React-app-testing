@@ -1,5 +1,5 @@
 // import Onboarding from "../components/Onboarding";
-import ExpandableText from "../components/ExpandableText";
+// import ExpandableText from "../components/ExpandableText";
 import OrderStatusSelector from "../components/OrderStatusSelector";
 // import TermsAndConditions from "../components/TermsAndConditions";
 
