@@ -5,6 +5,7 @@ import { http, HttpResponse } from "msw";
 import { server } from "../mocks/server";
 
 describe("Product Detail", () => {
+
   it("should render product detail", async () => {
     render(<ProductDetail productId={1} />);
     expect(
@@ -22,6 +23,7 @@ describe("Product Detail", () => {
     const msg = await screen.findByText(/not found/);
     expect(msg).toBeInTheDocument();
   });
+  
   it("should render an error id product id is invalid! ", async () => {
     render(<ProductDetail productId={0} />);
     const msg = await screen.findByText(/invalid/i);
