@@ -1,6 +1,5 @@
 import { http, HttpResponse } from "msw";
 import { products } from "./data";
-import { off } from "process";
 
 export const handlers = [
   http.get("/categories", () => {
@@ -21,6 +20,6 @@ export const handlers = [
     if (!product) {
       return new HttpResponse(null, { status: 404 });
     }
-    return HttpResponse.json(products);
+    return HttpResponse.json(product);
   }),
 ];
