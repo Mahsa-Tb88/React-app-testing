@@ -3,8 +3,20 @@ import ProductDetail from "../../src/components/ProductDetail";
 import { products } from "../mocks/data";
 import { http, HttpResponse } from "msw";
 import { server } from "../mocks/server";
+import { db } from "../mocks/db";
 
 describe("Product Detail", () => {
+  const productsId: number[] = [];
+  beforeAll(() => {
+    [1, 2, 3].forEach(() => {
+      const product = db.product.create();
+      productsId.push(product.id);
+    });
+  });
+
+  afterAll(() => {
+    db.product.deleteMany({ where: { id: { in: productsId  } } });
+  });
 
   it("should render product detail", async () => {
     render(<ProductDetail productId={1} />);
@@ -23,7 +35,7 @@ describe("Product Detail", () => {
     const msg = await screen.findByText(/not found/);
     expect(msg).toBeInTheDocument();
   });
-  
+
   it("should render an error id product id is invalid! ", async () => {
     render(<ProductDetail productId={0} />);
     const msg = await screen.findByText(/invalid/i);
