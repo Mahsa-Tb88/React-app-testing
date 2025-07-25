@@ -48,7 +48,6 @@ describe("Product Detail", () => {
         return HttpResponse.error();
       })
     );
-
     render(<ProductDetail productId={1} />);
     expect(await screen.findByText(/error/i)).toBeInTheDocument();
   });
