@@ -6,26 +6,26 @@ import { server } from "../mocks/server";
 import { db } from "../mocks/db";
 
 describe("Product Detail", () => {
-  const productsId: number[] = [];
+  let productId: number;
   beforeAll(() => {
-    [1, 2, 3].forEach(() => {
-      const product = db.product.create();
-      productsId.push(product.id);
-    });
+    const product = db.product.create();
+    productId = product.id;
   });
-
   afterAll(() => {
-    db.product.deleteMany({ where: { id: { in: productsId  } } });
+    db.product.delete({ where: { id: { equals: productId } } });
   });
 
   it("should render product detail", async () => {
-    render(<ProductDetail productId={1} />);
+    const product = db.product.findFirst({
+      where: { id: { equals: productId } },
+    });
+    render(<ProductDetail productId={productId} />);
     expect(
-      await screen.findByText(new RegExp(products[0].name))
+      await screen.findByText(new RegExp(product!.name))
     ).toBeInTheDocument();
 
     expect(
-      await screen.findByText(new RegExp(products[0].price.toString()))
+      await screen.findByText(new RegExp(product!.price.toString()))
     ).toBeInTheDocument();
   });
 
