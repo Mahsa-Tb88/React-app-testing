@@ -7,6 +7,7 @@ import ProductList from "../../src/components/ProductList";
 import { http, HttpResponse, delay } from "msw";
 import { server } from "../mocks/server";
 import { db } from "../mocks/db";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 describe("Product List", () => {
   const productsId: number[] = [];
@@ -21,19 +22,35 @@ describe("Product List", () => {
     db.product.deleteMany({ where: { id: { in: productsId } } });
   });
 
+  const renderComponents = () => {
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
+    render(
+      <QueryClientProvider client={client}>
+        <ProductList />
+      </QueryClientProvider>
+    );
+  };
+
   it("should render the list of products", async () => {
-    render(<ProductList />);
+    renderComponents();
     const items = await screen.findAllByRole("listitem");
     expect(items.length).toBeGreaterThan(0);
   });
-
+ 
   it("should render no products available if the list of products is empty", async () => {
     server.use(
       http.get("/products", () => {
         return HttpResponse.json([]);
       })
     );
-    render(<ProductList />);
+    renderComponents();
     expect(await screen.findByText(/no products/i)).toBeInTheDocument();
   });
 
@@ -43,7 +60,7 @@ describe("Product List", () => {
         return HttpResponse.error();
       })
     );
-    render(<ProductList />);
+    renderComponents();
     expect(await screen.findByText(/error/i)).toBeInTheDocument();
   });
 
@@ -54,12 +71,12 @@ describe("Product List", () => {
         return HttpResponse.json([]);
       })
     );
-    render(<ProductList />);
+    renderComponents();
     expect(await screen.findByText(/loading/i)).toBeInTheDocument();
   });
 
   it("should remove loading when data is fetched", () => {
-    render(<ProductList />);
+    renderComponents();
     waitForElementToBeRemoved(screen.queryByText(/loading/i));
   });
   it("should remove loading when fetching get failed", () => {
@@ -68,7 +85,7 @@ describe("Product List", () => {
         return HttpResponse.error();
       })
     );
-    render(<ProductList />);
+    renderComponents();
     waitForElementToBeRemoved(screen.queryByText(/loading/i));
   });
 });
