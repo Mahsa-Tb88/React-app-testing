@@ -16,22 +16,30 @@ describe("Product List", () => {
   afterAll(() => {
     db.product.deleteMany({ where: { id: { in: productsId } } });
   });
+
   it("should render the list of products", async () => {
     render(<ProductList />);
     const items = await screen.findAllByRole("listitem");
     expect(items.length).toBeGreaterThan(0);
   });
 
-  it("should render no products available   if the list of products is empty", async () => {
+  it("should render no products available if the list of products is empty", async () => {
     server.use(
       http.get("/products", () => {
-        HttpResponse.json([]);
+        return HttpResponse.json([]);
       })
     );
-
     render(<ProductList />);
+    expect(await screen.findByText(/no products/i)).toBeInTheDocument();
+  });
 
-    // const message = await screen.findByText(/No products/i);
-    // expect(message).toBeInTheDocument();
+  it("should return an error message when there is an error", async () => {
+    server.use(
+      http.get("/products", () => {
+        return HttpResponse.error();
+      })
+    );
+    render(<ProductList />);
+    expect(await screen.findByText(/error/i)).toBeInTheDocument();
   });
 });
