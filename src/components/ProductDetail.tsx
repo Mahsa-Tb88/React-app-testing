@@ -30,7 +30,7 @@ const ProductDetail = ({ productId }: { productId: number }) => {
   //     .catch((err) => setError((err as Error).message))
   //     .finally(() => setLoading(false));
   // }, []);
-
+  if (!productId) return <div>Invalid productId</div>;
   if (isLoading) return <div>Loading...</div>;
 
   if (error) return <div>Error: {error.message}</div>;
