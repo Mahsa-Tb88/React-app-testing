@@ -3,11 +3,11 @@ import {
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
+import { delay, http, HttpResponse } from "msw";
 import ProductList from "../../src/components/ProductList";
-import { http, HttpResponse, delay } from "msw";
-import { server } from "../mocks/server";
+import AllProvider from "../AllProvider";
 import { db } from "../mocks/db";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { server } from "../mocks/server";
 
 describe("Product List", () => {
   const productsId: number[] = [];
@@ -22,35 +22,19 @@ describe("Product List", () => {
     db.product.deleteMany({ where: { id: { in: productsId } } });
   });
 
-  const renderComponents = () => {
-    const client = new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
-    });
-
-    render(
-      <QueryClientProvider client={client}>
-        <ProductList />
-      </QueryClientProvider>
-    );
-  };
-
   it("should render the list of products", async () => {
-    renderComponents();
+    render(<ProductList />, { wrapper: AllProvider });
     const items = await screen.findAllByRole("listitem");
     expect(items.length).toBeGreaterThan(0);
   });
- 
+
   it("should render no products available if the list of products is empty", async () => {
     server.use(
       http.get("/products", () => {
         return HttpResponse.json([]);
       })
     );
-    renderComponents();
+    render(<ProductList />, { wrapper: AllProvider });
     expect(await screen.findByText(/no products/i)).toBeInTheDocument();
   });
 
@@ -60,7 +44,7 @@ describe("Product List", () => {
         return HttpResponse.error();
       })
     );
-    renderComponents();
+    render(<ProductList />, { wrapper: AllProvider });
     expect(await screen.findByText(/error/i)).toBeInTheDocument();
   });
 
@@ -71,12 +55,12 @@ describe("Product List", () => {
         return HttpResponse.json([]);
       })
     );
-    renderComponents();
+    render(<ProductList />, { wrapper: AllProvider });
     expect(await screen.findByText(/loading/i)).toBeInTheDocument();
   });
 
   it("should remove loading when data is fetched", () => {
-    renderComponents();
+    render(<ProductList />, { wrapper: AllProvider });
     waitForElementToBeRemoved(screen.queryByText(/loading/i));
   });
   it("should remove loading when fetching get failed", () => {
@@ -85,7 +69,7 @@ describe("Product List", () => {
         return HttpResponse.error();
       })
     );
-    renderComponents();
+    render(<ProductList />, { wrapper: AllProvider });
     waitForElementToBeRemoved(screen.queryByText(/loading/i));
   });
 });

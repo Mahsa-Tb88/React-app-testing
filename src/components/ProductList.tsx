@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import { Product } from "../entities";
 import { useQuery } from "react-query";
 
