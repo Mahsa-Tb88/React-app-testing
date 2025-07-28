@@ -66,4 +66,22 @@ describe("BrowseProductsPage", () => {
       screen.queryByRole("progressbar", { name: /products/i })
     );
   });
+
+  it("should not render an error if categories is not fetched", async () => {
+    server.use(http.get("/categories", () => HttpResponse.error()));
+    renderComponent();
+    await waitForElementToBeRemoved(() =>
+      screen.queryByRole("progressbar", { name: /categories/i })
+    );
+    expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("combobox", { name: /category/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("should not render an error if products can no be fetched", async () => {
+    server.use(http.get("/products", () => HttpResponse.error()));
+    renderComponent();
+    expect(await screen.findByText(/error/i)).toBeInTheDocument();
+  });
 });
