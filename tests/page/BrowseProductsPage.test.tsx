@@ -8,8 +8,23 @@ import { delay, http, HttpResponse } from "msw";
 import BrowseProducts from "../../src/pages/BrowseProductsPage";
 import { Theme } from "@radix-ui/themes";
 import userEvent from "@testing-library/user-event";
+import { db } from "../mocks/db";
+import { Category } from "../../src/entities";
 
 describe("BrowseProductsPage", () => {
+  const categories: Category[] = [];
+
+  beforeAll(() => {
+    [1, 2].forEach(() => {
+      categories.push(db.category.create());
+    });
+  });
+
+  afterAll(() => {
+    const categoryIds = categories.map((c) => c.id);
+    db.category.deleteMany({ where: { id: { in: categoryIds } } });
+  });
+
   const renderComponent = () => {
     render(
       <Theme>
@@ -87,9 +102,19 @@ describe("BrowseProductsPage", () => {
   });
 
   it("should render a categories", async () => {
-    server.use(http.get("/categories", () => HttpResponse.json([ ])));
+    server.use(
+      http.get("/categories", () =>
+        HttpResponse.json([{ id: 1, name: "Electronics" }])
+      )
+    );
     renderComponent();
     const combobox = await screen.findByRole("combobox");
     expect(combobox).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(combobox);
+
+    const options = await screen.findAllByRole("option");
+    expect(options.length).toBeGreaterThan(0);
   });
 });
