@@ -7,6 +7,7 @@ import { server } from "../mocks/server";
 import { delay, http, HttpResponse } from "msw";
 import BrowseProducts from "../../src/pages/BrowseProductsPage";
 import { Theme } from "@radix-ui/themes";
+import userEvent from "@testing-library/user-event";
 
 describe("BrowseProductsPage", () => {
   const renderComponent = () => {
@@ -79,9 +80,16 @@ describe("BrowseProductsPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("should not render an error if products can no be fetched", async () => {
+  it("should render an error if products can no be fetched", async () => {
     server.use(http.get("/products", () => HttpResponse.error()));
     renderComponent();
     expect(await screen.findByText(/error/i)).toBeInTheDocument();
+  });
+
+  it("should render a categories", async () => {
+    server.use(http.get("/categories", () => HttpResponse.json([ ])));
+    renderComponent();
+    const combobox = await screen.findByRole("combobox");
+    expect(combobox).toBeInTheDocument();
   });
 });

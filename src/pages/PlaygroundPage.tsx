@@ -1,6 +1,7 @@
 // import Onboarding from "../components/Onboarding";
 // import ExpandableText from "../components/ExpandableText";
-import OrderStatusSelector from "../components/OrderStatusSelector";
+// import OrderStatusSelector from "../components/OrderStatusSelector";
+import BrowseProducts from "./BrowseProductsPage";
 // import TermsAndConditions from "../components/TermsAndConditions";
 
 const PlaygroundPage = () => {
@@ -14,7 +15,9 @@ const PlaygroundPage = () => {
   //     }
   //   />
   // );
-  return <OrderStatusSelector onChange={console.log} />;
+  // return <OrderStatusSelector onChange={console.log} />;
+
+  return <BrowseProducts />;
 };
 
 export default PlaygroundPage;

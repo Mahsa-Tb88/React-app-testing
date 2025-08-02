@@ -3,7 +3,7 @@ import { db } from "./mocks/db";
 
 describe("group", () => {
   it("should", () => {
-    const product = db.product.create({ name: "Apple" });
+    const product = db.product.create();
     console.log(product);
   });
 });
