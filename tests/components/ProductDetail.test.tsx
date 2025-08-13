@@ -4,7 +4,6 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import ProductDetail from "../../src/components/ProductDetail";
-import { products } from "../mocks/data";
 import { http, HttpResponse, delay } from "msw";
 import { server } from "../mocks/server";
 import { db } from "../mocks/db";
@@ -47,7 +46,7 @@ describe("Product Detail", () => {
     expect(msg).toBeInTheDocument();
   });
 
-  it("should return error message if there is error", async () => {
+  it("should return error message if data fetching failed", async () => {
     server.use(
       http.get("products/1", () => {
         return HttpResponse.error();
@@ -74,7 +73,7 @@ describe("Product Detail", () => {
   });
   it("should remove loading when fetching get failed", () => {
     server.use(
-      http.get("/products", () => {
+      http.get("/product/1", () => {
         return HttpResponse.error();
       })
     );

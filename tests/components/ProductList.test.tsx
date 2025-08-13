@@ -1,8 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitForElementToBeRemoved } from "@testing-library/react";
 import { delay, http, HttpResponse } from "msw";
 import ProductList from "../../src/components/ProductList";
 import AllProvider from "../AllProvider";

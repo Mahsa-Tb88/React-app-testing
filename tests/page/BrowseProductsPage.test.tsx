@@ -1,8 +1,4 @@
-import {
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { render, screen, waitForElementToBeRemoved } from "@testing-library/react";
 import { server } from "../mocks/server";
 import { delay, http, HttpResponse } from "msw";
 import BrowseProducts from "../../src/pages/BrowseProductsPage";
@@ -14,13 +10,13 @@ import { Category } from "../../src/entities";
 describe("BrowseProductsPage", () => {
   const categories: Category[] = [];
 
-  beforeAll(() => {
+  beforeEach(() => {
     [1, 2].forEach(() => {
       categories.push(db.category.create());
     });
   });
 
-  afterAll(() => {
+  afterEach(() => {
     const categoryIds = categories.map((c) => c.id);
     db.category.deleteMany({ where: { id: { in: categoryIds } } });
   });
@@ -42,18 +38,16 @@ describe("BrowseProductsPage", () => {
     );
     renderComponent();
 
-    expect(
-      screen.getByRole("progressbar", { name: /categories/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("progressbar", { name: /categories/i })).toBeInTheDocument();
   });
 
   it("should hide loading skeleton after categories are fetched", async () => {
-    server.use(
-      http.get("/categories", async () => {
-        await delay();
-        return HttpResponse.json([]);
-      })
-    );
+    // server.use(
+    //   http.get("/categories", async () => {
+    //     await delay();
+    //     return HttpResponse.json([]);
+    //   })
+    // );
     renderComponent();
 
     await waitForElementToBeRemoved(() =>
@@ -70,17 +64,13 @@ describe("BrowseProductsPage", () => {
     );
     renderComponent();
 
-    expect(
-      screen.getByRole("progressbar", { name: /products/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("progressbar", { name: /products/i })).toBeInTheDocument();
   });
 
   it("should hide loading skeleton after products are fetched", async () => {
     renderComponent();
 
-    await waitForElementToBeRemoved(() =>
-      screen.queryByRole("progressbar", { name: /products/i })
-    );
+    await waitForElementToBeRemoved(() => screen.queryByRole("progressbar", { name: /products/i }));
   });
 
   it("should not render an error if categories is not fetched", async () => {
@@ -90,9 +80,7 @@ describe("BrowseProductsPage", () => {
       screen.queryByRole("progressbar", { name: /categories/i })
     );
     expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("combobox", { name: /category/i })
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: /category/i })).not.toBeInTheDocument();
   });
 
   it("should render an error if products can no be fetched", async () => {
@@ -102,11 +90,7 @@ describe("BrowseProductsPage", () => {
   });
 
   it("should render a categories", async () => {
-    server.use(
-      http.get("/categories", () =>
-        HttpResponse.json([{ id: 1, name: "Electronics" }])
-      )
-    );
+    server.use(http.get("/categories", () => HttpResponse.json([{ id: 1, name: "Electronics" }])));
     renderComponent();
     const combobox = await screen.findByRole("combobox");
     expect(combobox).toBeInTheDocument();
