@@ -5,20 +5,25 @@ import BrowseProducts from "../../src/pages/BrowseProductsPage";
 import { Theme } from "@radix-ui/themes";
 import userEvent from "@testing-library/user-event";
 import { db } from "../mocks/db";
-import { Category } from "../../src/entities";
+import { Category, Product } from "../../src/entities";
 
 describe("BrowseProductsPage", () => {
   const categories: Category[] = [];
+  const products: Product[] = [];
 
-  beforeEach(() => {
+  beforeAll(() => {
     [1, 2].forEach(() => {
       categories.push(db.category.create());
+      products.push(db.product.create());
     });
   });
 
-  afterEach(() => {
+  afterAll(() => {
     const categoryIds = categories.map((c) => c.id);
     db.category.deleteMany({ where: { id: { in: categoryIds } } });
+
+    const productIds = products.map((p) => p.id);
+    db.product.deleteMany({ where: { id: { in: productIds } } });
   });
 
   const renderComponent = () => {
@@ -42,14 +47,7 @@ describe("BrowseProductsPage", () => {
   });
 
   it("should hide loading skeleton after categories are fetched", async () => {
-    // server.use(
-    //   http.get("/categories", async () => {
-    //     await delay();
-    //     return HttpResponse.json([]);
-    //   })
-    // );
     renderComponent();
-
     await waitForElementToBeRemoved(() =>
       screen.queryByRole("progressbar", { name: /categories/i })
     );
@@ -89,8 +87,7 @@ describe("BrowseProductsPage", () => {
     expect(await screen.findByText(/error/i)).toBeInTheDocument();
   });
 
-  it("should render a categories", async () => {
-    server.use(http.get("/categories", () => HttpResponse.json([{ id: 1, name: "Electronics" }])));
+  it("should render categories", async () => {
     renderComponent();
     const combobox = await screen.findByRole("combobox");
     expect(combobox).toBeInTheDocument();
@@ -100,5 +97,15 @@ describe("BrowseProductsPage", () => {
 
     const options = await screen.findAllByRole("option");
     expect(options.length).toBeGreaterThan(0);
+
+    expect(screen.getByRole("option", { name: /all/i })).toBeInTheDocument();
+
+    categories.forEach((c) => {
+      expect(screen.getByRole("option", { name: c.name })).toBeInTheDocument();
+    });
+  });
+
+  it("should render products", () => {
+    renderComponent();
   });
 });
