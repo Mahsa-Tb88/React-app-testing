@@ -6,6 +6,7 @@ import { Theme } from "@radix-ui/themes";
 import userEvent from "@testing-library/user-event";
 import { db } from "../mocks/db";
 import { Category, Product } from "../../src/entities";
+import { CartProvider } from "../../src/providers/CartProvider";
 
 describe("BrowseProductsPage", () => {
   const categories: Category[] = [];
@@ -28,9 +29,11 @@ describe("BrowseProductsPage", () => {
 
   const renderComponent = () => {
     render(
-      <Theme>
-        <BrowseProducts />
-      </Theme>
+      <CartProvider>
+        <Theme>
+          <BrowseProducts />
+        </Theme>
+      </CartProvider>
     );
   };
 
@@ -105,7 +108,19 @@ describe("BrowseProductsPage", () => {
     });
   });
 
-  it("should render products", () => {
+  it("should render products", async () => {
     renderComponent();
+
+    await waitForElementToBeRemoved(() => screen.queryByRole("progressbar", { name: /products/i }));
+
+    // products.forEach((product) => {
+    //   expect(screen.getByText(product.name)).toBeInTheDocument();
+    // });
+
+    // or , if you want to use findby text
+
+    for (const product of products) {
+      expect(await screen.findByText(product.name)).toBeInTheDocument();
+    }
   });
 });
