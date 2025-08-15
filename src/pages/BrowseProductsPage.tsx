@@ -13,29 +13,14 @@ function BrowseProducts() {
     queryFn: () => axios.get<Category[]>("/categories").then((res) => res.data),
   });
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isProductsLoading, setProductsLoading] = useState(false);
-  const [errorProducts, setErrorProducts] = useState("");
+  const productQuery = useQuery<Product[], Error>({
+    queryKey: ["products"],
+    queryFn: () => axios.get<Product[]>("/products").then((res) => res.data),
+  });
+
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>();
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setProductsLoading(true);
-        const { data } = await axios.get<Product[]>("/products");
-        setProducts(data);
-      } catch (error) {
-        if (error instanceof AxiosError) setErrorProducts(error.message);
-        else setErrorProducts("An unexpected error occurred");
-      } finally {
-        setProductsLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  if (errorProducts) return <div>Error: {errorProducts}</div>;
+  if (productQuery.error) return <div>Error: {productQuery.error.message}</div>;
 
   const renderCategories = () => {
     const { isLoading, error, data: categories } = categoriesQuery;
@@ -66,11 +51,12 @@ function BrowseProducts() {
 
   const renderProducts = () => {
     const skeletons = [1, 2, 3, 4, 5];
+    const {isLoading,error,data:products}=productQuery
 
-    if (errorProducts) return <div>Error: {errorProducts}</div>;
+    if (error) return <div>Error: {error.message}</div>;
 
     const visibleProducts = selectedCategoryId
-      ? products.filter((p) => p.categoryId === selectedCategoryId)
+      ? products!.filter((p) => p.categoryId === selectedCategoryId)
       : products;
 
     return (
@@ -83,10 +69,10 @@ function BrowseProducts() {
           </Table.Row>
         </Table.Header>
         <Table.Body
-          role={isProductsLoading ? "progressbar" : undefined}
-          aria-label={isProductsLoading ? "Loading products" : undefined}
+          role={isLoading ? "progressbar" : undefined}
+          aria-label={isLoading ? "Loading products" : undefined}
         >
-          {isProductsLoading &&
+          {isLoading &&
             skeletons.map((skeleton) => (
               <Table.Row key={skeleton}>
                 <Table.Cell>
@@ -100,8 +86,8 @@ function BrowseProducts() {
                 </Table.Cell>
               </Table.Row>
             ))}
-          {!isProductsLoading &&
-            visibleProducts.map((product) => (
+          {!isLoading &&
+            visibleProducts!.map((product) => (
               <Table.Row key={product.id}>
                 <Table.Cell>{product.name}</Table.Cell>
                 <Table.Cell>${product.price}</Table.Cell>
