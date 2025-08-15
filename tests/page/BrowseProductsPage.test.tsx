@@ -7,6 +7,7 @@ import { db, getProductsByCategory } from "../mocks/db";
 import { Category, Product } from "../../src/entities";
 import { CartProvider } from "../../src/providers/CartProvider";
 import { simulateDelay, simulateError } from "../utils";
+import AllProvider from "../AllProvider";
 
 describe("BrowseProductsPage", () => {
   const categories: Category[] = [];
@@ -124,13 +125,7 @@ describe("BrowseProductsPage", () => {
 });
 
 const renderComponent = () => {
-  render(
-    <CartProvider>
-      <Theme>
-        <BrowseProducts />
-      </Theme>
-    </CartProvider>
-  );
+  render(<BrowseProducts />, { wrapper: AllProvider });
   const getProductsSkeleton = () => screen.queryByRole("progressbar", { name: /products/i });
   const getCategoriesSkeleton = screen.queryByRole("progressbar", { name: /categories/i });
   const selectCategory = async (name: RegExp | string) => {
