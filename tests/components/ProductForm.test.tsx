@@ -11,5 +11,6 @@ describe("ProductForm", () => {
 
     expect(screen.getByPlaceholderText(/name/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/price/i)).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /category/i })).toBeInTheDocument();
   });
 });
