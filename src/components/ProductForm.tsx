@@ -5,10 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Product } from "../entities";
 import useCategories from "../hooks/useCategories";
-import {
-  ProductFormData,
-  productFormSchema,
-} from "../validationSchemas/productSchema";
+import { ProductFormData, productFormSchema } from "../validationSchemas/productSchema";
 import ErrorMessage from "./ErrorMessage";
 
 interface Props {
@@ -48,8 +45,9 @@ const ProductForm = ({ product, onSubmit }: Props) => {
       className="space-y-3"
     >
       <Box>
+        <label htmlFor="name">Name</label>
         <TextField.Root className="max-w-sm">
-          <TextField.Input placeholder="Name" {...register("name")} size="3" />
+          <TextField.Input id="name" placeholder="Name" {...register("name")} size="3" />
         </TextField.Root>
         <ErrorMessage error={errors.name} />
       </Box>
@@ -79,10 +77,7 @@ const ProductForm = ({ product, onSubmit }: Props) => {
               <Select.Content>
                 <Select.Group>
                   {categories?.map((category) => (
-                    <Select.Item
-                      key={category.id}
-                      value={category.id.toString()}
-                    >
+                    <Select.Item key={category.id} value={category.id.toString()}>
                       {category.name}
                     </Select.Item>
                   ))}
