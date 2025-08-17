@@ -5,6 +5,8 @@ import AllProvider from "../AllProvider";
 describe("ProductForm", () => {
   it("should render form fields", async () => {
     render(<ProductForm onSubmit={vi.fn()} />, { wrapper: AllProvider });
-    expect(await  screen.findByRole("textbox", { name: /name/i })).toBeInTheDocument();
+    await screen.findByRole("form");
+    expect(screen.getByPlaceholderText(/name/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/price/i)).toBeInTheDocument();
   });
 });
