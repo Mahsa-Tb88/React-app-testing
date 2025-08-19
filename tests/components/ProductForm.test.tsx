@@ -3,6 +3,7 @@ import ProductForm from "../../src/components/ProductForm";
 import AllProvider from "../AllProvider";
 import { db } from "../mocks/db";
 import { Category, Product } from "../../src/entities";
+import { products } from "../mocks/data";
 
 describe("ProductForm", () => {
   let category: Category;
@@ -14,15 +15,29 @@ describe("ProductForm", () => {
     db.category.delete({ where: { id: { equals: category.id } } });
   });
 
+  const renderComponent = (product?: Product) => {
+    render(<ProductForm product={product} onSubmit={vi.fn()} />, { wrapper: AllProvider });
+
+    return {
+      waitForFormToLoad: () => screen.findByRole("form"),
+      getInput: () => {
+        return {
+          nameInput: screen.findByPlaceholderText(/name/i),
+          priceInput: screen.findByPlaceholderText(/price/i),
+          categoryInput: screen.findByRole("combobox", { name: /category/i }),
+        };
+      },
+    };
+  };
+
   it("should render form fields", async () => {
-    render(<ProductForm onSubmit={vi.fn()} />, { wrapper: AllProvider });
-
-    // await screen.findByRole("form");
-    await waitForElementToBeRemoved(() => screen.queryByText(/Loading/i));
-
-    expect(screen.getByPlaceholderText(/name/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/price/i)).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: /category/i })).toBeInTheDocument();
+    const { waitForFormToLoad, getInput } = renderComponent();
+    // await waitForElementToBeRemoved(() => screen.queryByText(/Loading/i));
+    const { nameInput, priceInput, categoryInput } = getInput();
+    await waitForFormToLoad();
+    expect(await nameInput).toBeInTheDocument();
+    expect(await priceInput).toBeInTheDocument();
+    expect(await categoryInput).toBeInTheDocument();
   });
 
   it("should populate form fields when editting a product", async () => {
@@ -32,13 +47,15 @@ describe("ProductForm", () => {
       price: 10,
       categoryId: category.id,
     };
-    render(<ProductForm product={product} onSubmit={vi.fn()} />, { wrapper: AllProvider });
+    const { waitForFormToLoad, getInput } = renderComponent(product);
+    await waitForFormToLoad();
+    const { nameInput, priceInput, categoryInput } = getInput();
 
     // await screen.findByRole("form");
-    await waitForElementToBeRemoved(() => screen.queryByText(/Loading/i));
+    // await waitForElementToBeRemoved(() => screen.queryByText(/Loading/i));
 
-    expect(screen.getByPlaceholderText(/name/i)).toHaveValue(product.name);
-    expect(screen.getByPlaceholderText(/price/i)).toHaveValue(product.price.toString());
-    expect(screen.getByRole("combobox", { name: /category/i })).toHaveTextContent(category.name);
+    expect(await nameInput).toHaveValue(product.name);
+    expect(await priceInput).toHaveValue(product.price.toString());
+    expect(await categoryInput).toHaveTextContent(category.name);
   });
 });
