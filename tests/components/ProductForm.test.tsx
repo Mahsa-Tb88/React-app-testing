@@ -68,12 +68,25 @@ describe("ProductForm", () => {
     expect(await nameInput).toHaveFocus();
   });
 
-  it("should render error if name is missing", async () => {
+  it.each([
+    {
+      scenario: "missing",
+      errorMessage: /required/i,
+    },
+    {
+      scenario: "longer than 255",
+      name: "a".repeat(256),
+      errorMessage: /255/,
+    },
+  ])("should render error if name is $scenario ", async ({name, errorMessage}) => {
     const { waitForFormToLoad, getInput } = renderComponent();
     await waitForFormToLoad();
-    const { priceInput, categoryInput, submitButton } = getInput();
+    const { priceInput, categoryInput, submitButton, nameInput } = getInput();
 
     const user = userEvent.setup();
+    if (name !== undefined) {
+      await user.type(await nameInput, name);
+    }
     await user.type(await priceInput, "10");
     await user.click(await categoryInput);
 
@@ -83,6 +96,6 @@ describe("ProductForm", () => {
 
     const error = screen.getByRole("alert");
     expect(error).toBeInTheDocument();
-    expect(error).toHaveTextContent(/required/i);
+    expect(error).toHaveTextContent(errorMessage);
   });
 });
