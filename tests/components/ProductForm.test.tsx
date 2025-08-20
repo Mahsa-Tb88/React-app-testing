@@ -58,4 +58,11 @@ describe("ProductForm", () => {
     expect(await priceInput).toHaveValue(product.price.toString());
     expect(await categoryInput).toHaveTextContent(category.name);
   });
+
+  it("should focus on the name field", async () => {
+    const { waitForFormToLoad, getInput } = renderComponent();
+    await waitForFormToLoad();
+    const { nameInput } = getInput();
+    expect(await nameInput).toHaveFocus();
+  });
 });
