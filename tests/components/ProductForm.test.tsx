@@ -1,9 +1,8 @@
-import { render, screen, waitForElementToBeRemoved } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import ProductForm from "../../src/components/ProductForm";
 import AllProvider from "../AllProvider";
 import { db } from "../mocks/db";
 import { Category, Product } from "../../src/entities";
-import { products } from "../mocks/data";
 import userEvent from "@testing-library/user-event";
 
 describe("ProductForm", () => {
@@ -17,16 +16,39 @@ describe("ProductForm", () => {
   });
 
   const renderComponent = (product?: Product) => {
-    render(<ProductForm product={product} onSubmit={vi.fn()} />, { wrapper: AllProvider });
+    const onSubmit = vi.fn();
+    render(<ProductForm product={product} onSubmit={onSubmit} />, { wrapper: AllProvider });
+    const nameInput = screen.findByPlaceholderText(/name/i);
+    const priceInput = screen.findByPlaceholderText(/price/i);
+    const categoryInput = screen.findByRole("combobox", { name: /category/i });
+    const submitButton = screen.findByRole("button");
+    const fillForm = async (product: Product) => {
+      const user = userEvent.setup();
 
+      if (product.name !== undefined) {
+        await user.type(await nameInput, product.name);
+      }
+
+      if (product.price !== undefined) {
+        await user.type(await priceInput, product.price.toString());
+      }
+
+      await user.click(await categoryInput);
+
+      const options = screen.getAllByRole("option");
+      await user.click(options[0]);
+      await user.click(await submitButton);
+    };
     return {
       waitForFormToLoad: () => screen.findByRole("form"),
+      fillForm,
+      onSubmit,
       getInput: () => {
         return {
-          nameInput: screen.findByPlaceholderText(/name/i),
-          priceInput: screen.findByPlaceholderText(/price/i),
-          categoryInput: screen.findByRole("combobox", { name: /category/i }),
-          submitButton: screen.findByRole("button"),
+          nameInput,
+          priceInput,
+          categoryInput,
+          submitButton,
         };
       },
     };
@@ -125,23 +147,20 @@ describe("ProductForm", () => {
       errorMessage: /required/i,
     },
   ])("should render error if price is $scenario ", async ({ price, errorMessage }) => {
-    const { waitForFormToLoad, getInput } = renderComponent();
+    const { waitForFormToLoad, fillForm } = renderComponent();
+    // const { priceInput, categoryInput, submitButton, nameInput } = getInput();
+
     await waitForFormToLoad();
-    const { priceInput, categoryInput, submitButton, nameInput } = getInput();
-
-    const user = userEvent.setup();
-    await user.type(await nameInput, "price");
-    if (price !== undefined) {
-      await user.type(await priceInput, price.toString());
-    }
-    await user.click(await categoryInput);
-
-    const options = screen.getAllByRole("option");
-    await user.click(options[0]);
-    await user.click(await submitButton);
-
+    await fillForm({ name: "a", price });
     const error = screen.getByRole("alert");
     expect(error).toBeInTheDocument();
     expect(error).toHaveTextContent(errorMessage);
+  });
+
+  it("should call onSubmit with the correct data", async () => {
+    // const { waitForFormToLoad, onSubmit } = renderComponent();
+    // const form = await waitForFormToLoad();
+    // await form.fill(form.validData);
+    // expect(onSubmit).toHaveBeenCalledWith(form.validData);
   });
 });
