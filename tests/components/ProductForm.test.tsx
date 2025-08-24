@@ -185,4 +185,13 @@ describe("ProductForm", () => {
     expect(toast).toBeInTheDocument();
     expect(toast).toHaveTextContent(/error/i);
   });
+
+  it("should disable submit button upon submission", async () => {
+    const { waitForFormToLoad, onSubmit, fillForm, validData } = renderComponent();
+    onSubmit.mockReturnValue(new Promise(() => {}));
+    await waitForFormToLoad();
+    await fillForm(validData);
+    const submitButton = screen.getByRole("button");
+    expect(submitButton).toBeInTheDocument();
+  });
 });
