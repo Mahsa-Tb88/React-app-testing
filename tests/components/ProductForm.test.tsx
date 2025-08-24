@@ -29,7 +29,7 @@ describe("ProductForm", () => {
       id: 1,
       name: "a",
       price: 1,
-      categoryId: 1,
+      categoryId: category.id,
     };
 
     const fillForm = async (product: FormData) => {
@@ -161,9 +161,10 @@ describe("ProductForm", () => {
   });
 
   it("should call onSubmit with the correct data", async () => {
-    // const { waitForFormToLoad, onSubmit } = renderComponent();
-    // const form = await waitForFormToLoad();
-    // await form.fill(form.validData);
-    // expect(onSubmit).toHaveBeenCalledWith(form.validData);
+    const { waitForFormToLoad, onSubmit, fillForm, validData } = renderComponent();
+    await waitForFormToLoad();
+    await fillForm(validData);
+    const { id, ...formData } = validData;
+    expect(onSubmit).toHaveBeenCalledWith(formData);
   });
 });
