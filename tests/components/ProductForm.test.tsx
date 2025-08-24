@@ -49,11 +49,17 @@ describe("ProductForm", () => {
       await user.click(options[0]);
       await user.click(await submitButton);
     };
+    const expectErrorToBeInTheDocument = (errorMessage: RegExp) => {
+      const error = screen.getByRole("alert");
+      expect(error).toBeInTheDocument();
+      expect(error).toHaveTextContent(errorMessage);
+    };
     return {
       waitForFormToLoad: () => screen.findByRole("form"),
       fillForm,
       onSubmit,
       validData,
+      expectErrorToBeInTheDocument,
       getInput: () => {
         return {
           nameInput,
@@ -112,14 +118,12 @@ describe("ProductForm", () => {
       errorMessage: /255/,
     },
   ])("should render error if name is $scenario ", async ({ name, errorMessage }) => {
-    const { waitForFormToLoad, fillForm, validData } = renderComponent();
+    const { waitForFormToLoad, fillForm, validData, expectErrorToBeInTheDocument } =
+      renderComponent();
     await waitForFormToLoad();
 
     await fillForm({ ...validData, name });
-
-    const error = screen.getByRole("alert");
-    expect(error).toBeInTheDocument();
-    expect(error).toHaveTextContent(errorMessage);
+    expectErrorToBeInTheDocument(errorMessage);
   });
 
   it.each([
@@ -148,13 +152,12 @@ describe("ProductForm", () => {
       errorMessage: /required/i,
     },
   ])("should render error if price is $scenario ", async ({ price, errorMessage }) => {
-    const { waitForFormToLoad, fillForm, validData } = renderComponent();
+    const { waitForFormToLoad, fillForm, validData, expectErrorToBeInTheDocument } =
+      renderComponent();
 
     await waitForFormToLoad();
     await fillForm({ ...validData, price });
-    const error = screen.getByRole("alert");
-    expect(error).toBeInTheDocument();
-    expect(error).toHaveTextContent(errorMessage);
+    expectErrorToBeInTheDocument(errorMessage);
   });
 
   it("should call onSubmit with the correct data", async () => {
