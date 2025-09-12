@@ -5,6 +5,7 @@ import { Category, Product } from "../../src/entities";
 import { db } from "../mocks/db";
 import userEvent from "@testing-library/user-event";
 import ErrorMessage from "../../src/components/ErrorMessage";
+import { Toaster } from "react-hot-toast";
 
 describe("productFrom", () => {
   let category: Category;
@@ -19,7 +20,13 @@ describe("productFrom", () => {
 
   const renderComponent = (product?: Product) => {
     const onSubmit = vi.fn();
-    render(<ProductForm product={product} onSubmit={onSubmit} />, { wrapper: AllProvider });
+    render(
+      <>
+        <ProductForm product={product} onSubmit={onSubmit} />
+        <Toaster />
+      </>,
+      { wrapper: AllProvider }
+    );
 
     type FormData = {
       [k in keyof Product]: any;
@@ -154,4 +161,16 @@ describe("productFrom", () => {
     const { id, ...formData } = validData;
     expect(onSubmit).toHaveBeenCalledWith(formData);
   });
+
+  it("should display a toast if submission fails", async () => {
+    const { waitForFormToLoad } = renderComponent();
+    const { onSubmit, fill, validData } = await waitForFormToLoad();
+    onSubmit.mockRejectedValue({});
+
+    await fill(validData);
+
+    const toast = await screen.findByRole("status");
+    expect(toast).toBeInTheDocument();
+    expect(toast).toHaveTextContent(/error/i);
+  }); 
 });
