@@ -45,4 +45,10 @@ describe("productFrom", () => {
     expect(screen.getByPlaceholderText(/price/i)).toHaveValue(product.price.toString());
     expect(screen.getByRole("combobox", { name: /category/i })).toHaveTextContent(category.name);
   });
+
+  it("should focus on the name input", async () => {
+    const { waitForFormToLoad } = renderComponent();
+    await waitForFormToLoad();
+    expect(screen.getByPlaceholderText(/name/i)).toHaveFocus();
+  });
 });
