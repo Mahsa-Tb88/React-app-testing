@@ -18,7 +18,8 @@ describe("productFrom", () => {
   });
 
   const renderComponent = (product?: Product) => {
-    render(<ProductForm product={product} onSubmit={vi.fn()} />, { wrapper: AllProvider });
+    const onSubmit = vi.fn();
+    render(<ProductForm product={product} onSubmit={onSubmit} />, { wrapper: AllProvider });
 
     type FormData = {
       [k in keyof Product]: any;
@@ -28,7 +29,7 @@ describe("productFrom", () => {
       id: 1,
       name: "a",
       price: 1,
-      categoryId: 1,
+      categoryId: category.id,
     };
 
     return {
@@ -58,6 +59,7 @@ describe("productFrom", () => {
           submitButton,
           fill,
           validData,
+          onSubmit,
         };
       },
     };
@@ -144,16 +146,12 @@ describe("productFrom", () => {
     expect(screen.getByRole("alert")).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent(ErrorMessage);
   });
+
+  it("should call onSubmit  with the correct data", async () => {
+    const { waitForFormToLoad } = renderComponent();
+    const { onSubmit, fill, validData } = await waitForFormToLoad();
+    await fill(validData);
+    const { id, ...formData } = validData;
+    expect(onSubmit).toHaveBeenCalledWith(formData);
+  });
 });
-
-// const { nameInput, priceInput, categoryInput, submitButton, fill, validData } =
-
-// const user = userEvent.setup();
-// if (name != undefined) {
-//   await user.type(nameInput, name);
-// }
-// await user.type(priceInput, "10");
-// await user.click(categoryInput);
-// const options = screen.getAllByRole("option");
-// await user.click(options[0]);
-// await user.click(submitButton);
