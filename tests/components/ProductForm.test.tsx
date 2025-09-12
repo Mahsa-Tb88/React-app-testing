@@ -19,17 +19,24 @@ describe("productFrom", () => {
     render(<ProductForm product={product} onSubmit={vi.fn()} />, { wrapper: AllProvider });
 
     return {
-      waitForFormToLoad: () => screen.findByRole("form"),
+      waitForFormToLoad: async () => {
+        await screen.findByRole("form");
+        return {
+          nameInput: screen.getByPlaceholderText(/name/i),
+          priceInput: screen.getByPlaceholderText(/price/i),
+          categoryInput: screen.getByRole("combobox", { name: /category/i }),
+        };
+      },
     };
   };
 
   it("should render form", async () => {
     const { waitForFormToLoad } = renderComponent();
 
-    await waitForFormToLoad();
-    expect(screen.getByPlaceholderText(/name/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/price/i)).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: /category/i })).toBeInTheDocument();
+    const { priceInput, nameInput, categoryInput } = await waitForFormToLoad();
+    expect(nameInput).toBeInTheDocument();
+    expect(priceInput).toBeInTheDocument();
+    expect(categoryInput).toBeInTheDocument();
   });
 
   it("should populate form fields when editig a product", async () => {
@@ -40,15 +47,15 @@ describe("productFrom", () => {
       categoryId: category.id,
     };
     const { waitForFormToLoad } = renderComponent(product);
-    await waitForFormToLoad();
-    expect(screen.getByPlaceholderText(/name/i)).toHaveValue(product.name);
-    expect(screen.getByPlaceholderText(/price/i)).toHaveValue(product.price.toString());
-    expect(screen.getByRole("combobox", { name: /category/i })).toHaveTextContent(category.name);
+    const { priceInput, nameInput, categoryInput } = await waitForFormToLoad();
+    expect(nameInput).toHaveValue(product.name);
+    expect(priceInput).toHaveValue(product.price.toString());
+    expect(categoryInput).toHaveTextContent(category.name);
   });
 
   it("should focus on the name input", async () => {
     const { waitForFormToLoad } = renderComponent();
-    await waitForFormToLoad();
-    expect(screen.getByPlaceholderText(/name/i)).toHaveFocus();
+    const { nameInput } = await waitForFormToLoad();
+    expect(nameInput).toHaveFocus();
   });
 });
