@@ -3,6 +3,7 @@ import ProductForm from "../../src/components/ProductForm";
 import AllProvider from "../AllProvider";
 import { Category, Product } from "../../src/entities";
 import { db } from "../mocks/db";
+import userEvent from "@testing-library/user-event";
 
 describe("productFrom", () => {
   let category: Category;
@@ -25,6 +26,7 @@ describe("productFrom", () => {
           nameInput: screen.getByPlaceholderText(/name/i),
           priceInput: screen.getByPlaceholderText(/price/i),
           categoryInput: screen.getByRole("combobox", { name: /category/i }),
+          submitButton: screen.getByRole("button"),
         };
       },
     };
@@ -57,5 +59,20 @@ describe("productFrom", () => {
     const { waitForFormToLoad } = renderComponent();
     const { nameInput } = await waitForFormToLoad();
     expect(nameInput).toHaveFocus();
+  });
+
+  it("should display en error is name is missing", async () => {
+    const { waitForFormToLoad } = renderComponent();
+    const { priceInput, categoryInput, submitButton } = await waitForFormToLoad();
+
+    const user = userEvent.setup();
+    await user.type(priceInput, "10");
+    await user.click(categoryInput);
+    const options = screen.getAllByRole("option");
+    await user.click(options[0]);
+    await user.click(submitButton);
+
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent(/required/i);
   });
 });
