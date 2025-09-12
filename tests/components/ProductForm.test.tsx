@@ -20,14 +20,44 @@ describe("productFrom", () => {
   const renderComponent = (product?: Product) => {
     render(<ProductForm product={product} onSubmit={vi.fn()} />, { wrapper: AllProvider });
 
+    type FormData = {
+      [k in keyof Product]: any;
+    };
+
+    const validData: FormData = {
+      id: 1,
+      name: "a",
+      price: 1,
+      categoryId: 1,
+    };
+
     return {
       waitForFormToLoad: async () => {
         await screen.findByRole("form");
+        const nameInput = screen.getByPlaceholderText(/name/i);
+        const priceInput = screen.getByPlaceholderText(/price/i);
+        const categoryInput = screen.getByRole("combobox", { name: /category/i });
+        const submitButton = screen.getByRole("button");
+        const fill = async (product: FormData) => {
+          const user = userEvent.setup();
+          if (product.name != undefined) {
+            await user.type(nameInput, product.name);
+          }
+          if (product.price != undefined) {
+            await user.type(priceInput, product.price.toString());
+          }
+          await user.click(categoryInput);
+          const options = screen.getAllByRole("option");
+          await user.click(options[0]);
+          await user.click(submitButton);
+        };
         return {
-          nameInput: screen.getByPlaceholderText(/name/i),
-          priceInput: screen.getByPlaceholderText(/price/i),
-          categoryInput: screen.getByRole("combobox", { name: /category/i }),
-          submitButton: screen.getByRole("button"),
+          nameInput,
+          priceInput,
+          categoryInput,
+          submitButton,
+          fill,
+          validData,
         };
       },
     };
@@ -74,19 +104,56 @@ describe("productFrom", () => {
     },
   ])("should display en error is name is $missing", async ({ name, ErrorMessage }) => {
     const { waitForFormToLoad } = renderComponent();
-    const { nameInput, priceInput, categoryInput, submitButton } = await waitForFormToLoad();
+    const { fill, validData } = await waitForFormToLoad();
+    await fill({ ...validData, name });
 
-    const user = userEvent.setup();
-    if (name != undefined) {
-      await user.type(nameInput, name);
-    }
-    await user.type(priceInput, "10");
-    await user.click(categoryInput);
-    const options = screen.getAllByRole("option");
-    await user.click(options[0]);
-    await user.click(submitButton);
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent(ErrorMessage);
+  });
+
+  it.each([
+    {
+      scenario: "missing",
+      ErrorMessage: /required/i,
+    },
+    {
+      scenario: "0",
+      price: 0,
+      ErrorMessage: /1/i,
+    },
+    {
+      scenario: "negative",
+      price: -1,
+      ErrorMessage: /1/i,
+    },
+    {
+      scenario: "greater than 1000",
+      price: 1001,
+      ErrorMessage: /1000/i,
+    },
+    {
+      scenario: "not a number",
+      price: "a",
+      ErrorMessage: /required/i,
+    },
+  ])("should display an error if price is $scenario", async ({ price, ErrorMessage }) => {
+    const { waitForFormToLoad } = renderComponent();
+    const { fill, validData } = await waitForFormToLoad();
+    await fill({ ...validData, price });
 
     expect(screen.getByRole("alert")).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent(ErrorMessage);
   });
 });
+
+// const { nameInput, priceInput, categoryInput, submitButton, fill, validData } =
+
+// const user = userEvent.setup();
+// if (name != undefined) {
+//   await user.type(nameInput, name);
+// }
+// await user.type(priceInput, "10");
+// await user.click(categoryInput);
+// const options = screen.getAllByRole("option");
+// await user.click(options[0]);
+// await user.click(submitButton);
