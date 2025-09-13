@@ -191,4 +191,13 @@ describe("productFrom", () => {
     await fill(validData);
     expect(submitButton).not.toBeDisabled();
   });
+
+  it("should re-enable submit button after submission", async () => {
+    const { waitForFormToLoad } = renderComponent();
+    const { onSubmit, fill, validData, submitButton } = await waitForFormToLoad();
+    onSubmit.mockRejectedValue("error");
+
+    await fill(validData);
+    expect(submitButton).not.toBeDisabled();
+  });
 });
