@@ -172,5 +172,14 @@ describe("productFrom", () => {
     const toast = await screen.findByRole("status");
     expect(toast).toBeInTheDocument();
     expect(toast).toHaveTextContent(/error/i);
-  }); 
+  });
+
+  it("should disable submit button upon submission", async () => {
+    const { waitForFormToLoad } = renderComponent();
+    const { onSubmit, fill, validData, submitButton } = await waitForFormToLoad();
+    onSubmit.mockReturnValue(new Promise(() => {}));
+
+    await fill(validData);
+    expect(submitButton).toBeDisabled();
+  });
 });
