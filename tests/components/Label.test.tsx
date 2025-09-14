@@ -34,4 +34,7 @@ describe("Label", () => {
       expect(screen.getByText(text)).toBeInTheDocument();
     });
   });
+  it("should throw and error if given an invalid label id ", () => {
+    expect(() => renderComponent("!", "en")).toThrowError();
+  });
 });
