@@ -35,6 +35,7 @@ describe("Quantity selector", () => {
   it("should add the product to the cart", async () => {
     const { addtoCartButton, user, getQunatity, getDecrementBtn, getIncrementBtn } =
       renderComponent();
+
     await user.click(addtoCartButton);
 
     expect(getQunatity()).toHaveTextContent("1");
@@ -44,5 +45,13 @@ describe("Quantity selector", () => {
     expect(getIncrementBtn()).toBeInTheDocument();
 
     expect(addtoCartButton).not.toBeInTheDocument();
+  });
+
+  it("should increment  the quantity", async () => {
+    const { addtoCartButton, user, getQunatity, getIncrementBtn } = renderComponent();
+
+    await user.click(addtoCartButton);
+    await user.click(getIncrementBtn());
+    expect(getQunatity()).toHaveTextContent("2");
   });
 });
