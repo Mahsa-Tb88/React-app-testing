@@ -54,4 +54,15 @@ describe("Quantity selector", () => {
     await user.click(getIncrementBtn());
     expect(getQunatity()).toHaveTextContent("2");
   });
+
+  it("should decremment the quantity when quatity is larger than 1", async () => {
+    const { addtoCartButton, user, getQunatity, getIncrementBtn, getDecrementBtn } =
+      renderComponent();
+
+    await user.click(addtoCartButton);
+    await user.click(getIncrementBtn());
+    await user.click(getDecrementBtn());
+
+    expect(getQunatity()).toHaveTextContent("1");
+  });
 });
