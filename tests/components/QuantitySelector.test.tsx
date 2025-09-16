@@ -22,9 +22,9 @@ describe("Quantity selector", () => {
     return {
       addtoCartButton: screen.getByRole("button", { name: /add to cart/i }),
       user: userEvent.setup(),
-      getQunatity: () => screen.getByRole("status"),
-      getDecrementBtn: () => screen.getByRole("button", { name: "-" }),
-      getIncrementBtn: () => screen.getByRole("button", { name: "+" }),
+      getQunatity: () => screen.queryByRole("status"),
+      getDecrementBtn: () => screen.queryByRole("button", { name: "-" }),
+      getIncrementBtn: () => screen.queryByRole("button", { name: "+" }),
     };
   };
 
@@ -51,7 +51,7 @@ describe("Quantity selector", () => {
     const { addtoCartButton, user, getQunatity, getIncrementBtn } = renderComponent();
 
     await user.click(addtoCartButton);
-    await user.click(getIncrementBtn());
+    await user.click(getIncrementBtn()!);
     expect(getQunatity()).toHaveTextContent("2");
   });
 
@@ -60,9 +60,21 @@ describe("Quantity selector", () => {
       renderComponent();
 
     await user.click(addtoCartButton);
-    await user.click(getIncrementBtn());
-    await user.click(getDecrementBtn());
+    await user.click(getIncrementBtn()!);
+    await user.click(getDecrementBtn()!);
 
     expect(getQunatity()).toHaveTextContent("1");
+  });
+  it("should remove the quantity when click on decrement btn and quatity is  1", async () => {
+    const { addtoCartButton, user, getQunatity, getIncrementBtn, getDecrementBtn } =
+      renderComponent();
+
+    await user.click(addtoCartButton);
+    await user.click(getDecrementBtn()!);
+
+    expect(getQunatity()).not.toBeInTheDocument();
+    expect(getIncrementBtn()).not.toBeInTheDocument();
+    expect(getDecrementBtn()).not.toBeInTheDocument();
+    // expect(addtoCartButton).toBeInTheDocument();
   });
 });
